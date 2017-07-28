@@ -13,7 +13,7 @@ def train():
     mode = 'binary'
 
     weights_fpath = 'weights.pickle'  # weights will be stored here
-    text_fpath = 'parsed.txt'  # path to the input file
+    text_fpath = 'data/parsed.txt'  # path to the input file
     max_epochs = 1000
     lr = 0.01
     grad_clipping = 100.  # ML: need to be modified
