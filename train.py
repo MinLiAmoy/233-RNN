@@ -1,27 +1,77 @@
 import char_rnn
 import theano_funcs
 import utils.utils
-
+import argparse
 import numpy as np
 from lasagne.layers import get_all_param_values
 from sklearn.preprocessing import LabelEncoder
 from tqdm import tqdm
 
 
-def train():
-    rnn = 'LSTM' # type of RNN
-    mode = 'binary'
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--text_fpath', type=str, default='data/parsed.txt',
+                       help='data directory containing input.txt')
+    #parser.add_argument('--log_dir', type=str, default='logs',
+    #                  help='directory containing tensorboard logs')
+    parser.add_argument('--rnn',type=str, default='LSTM',
+                        help='tpye of rnn:lstm, gru or recurrent')
+    parser.add_argument('--mode',type=str, default = 'normal',
+                        help='method to quantize:normal, binary, ternary, dual-copy or quantize')
+    #parser.add_argument('--save_dir', type=str, default='save',
+    #                   help='directory to store checkpointed models')
+    parser.add_argument('--weight_fpath',type=str, default = 'cv/',
+                        help='method to quantize:normal, binary, ternary, dual-copy or quantize')
+    parser.add_argument('--num_hidden', type=int, default=512,
+                       help='size of RNN hidden state')
+    parser.add_argument('--num_layers', type=int, default=2,
+                       help='number of layers in the RNN')  # ML: still need to modify
+    parser.add_argument('--model', type=str, default='lstm',
+                       help='rnn, gru, or lstm')
+    parser.add_argument('--batch_size', type=int, default=128,
+                       help='minibatch size')
+    parser.add_argument('--train_seq_length', type=int, default=20,
+                       help='RNN sequence length in training phase')
+    parser.add_argument('--sample_seq_length', type=int, default=200,
+                       help='RNN sequence length in sampling phase')
+    parser.add_argument('--max_epochs', type=int, default=1000,
+                       help='number of epochs')
+    parser.add_argument('--sample_every', type=int, default=1000,
+                       help='sample frequency')
+    parser.add_argument('--grad_clipping', type=float, default=5.,
+                       help='clip gradients at this value') # ML: need to modify
+    parser.add_argument('--lr', type=float, default=0.001,
+                       help='learning rate')
+    parser.add_argument('--decay_rate', type=float, default=0.97,
+                       help='decay rate for rmsprop') # ML: need to modify
+    #parser.add_argument('--gpu_mem', type=float, default=0.666,
+    #                   help='%% of gpu memory to be allocated to this process. Default is 66.6%%')
+    '''parser.add_argument('--init_from', type=str, default=None,
+                       help="""continue training from saved model at this path. Path must contain files saved by previous training process:
+                            'config.pkl'        : configuration;
+                            'words_vocab.pkl'   : vocabulary definitions;
+                            'checkpoint'        : paths to model file(s) (created by tf).
+                                                  Note: this file contains absolute paths, be careful when moving files around;
+                            'model.ckpt-*'      : file(s) with model definition (created by tf)
+                        """)'''
+    args = parser.parse_args()
+    train(args)
 
-    weights_fpath = 'weights.pickle'  # weights will be stored here
-    text_fpath = 'data/parsed.txt'  # path to the input file
-    max_epochs = 1000
-    lr = 0.01
-    grad_clipping = 100.  # ML: need to be modified
-    num_hidden = 512
-    batch_size = 128
-    sample_every = 1000  # sample every n batches
+
+def train(args):
+    rnn = args.rnn # type of RNN
+    mode = args.mode
+
+    weights_fpath = args.weight_fpath  # weights will be stored here
+    text_fpath = args.text_fpath  # path to the input file
+    max_epochs = args.max_epochs
+    lr = args.lr
+    grad_clipping = args.grad_clipping  # ML: need to be modified
+    num_hidden = args.num_hidden
+    batch_size = args.batch_size
+    sample_every = args.sample_every  # sample every n batches
     # sequence length during training, number of chars to draw for sampling
-    train_seq_length, sample_seq_length = 20, 200
+    train_seq_length, sample_seq_length = args.train_seq_length, args.sample_seq_length
     text, vocab = utils.utils.parse(text_fpath)
 
     # encode each character in the vocabulary as an integer
@@ -70,7 +120,7 @@ def train():
                 if ((i + 1) % sample_every) == 0:
                     print(' loss = %.6f' % (np.mean(train_losses)))
                     phrase = np.random.choice(phrases)
-                    generated_phrase = utils.sample(
+                    generated_phrase = utils.utils.sample(
                         sample, phrase,
                         train_seq_length, sample_seq_length,
                         vocab_size, encoder
@@ -78,7 +128,7 @@ def train():
                     print('%s%s' % (phrase, generated_phrase))
             if np.mean(train_losses) < best_loss:
                 print ('saving weight to %s in npz format' % (weights_fpath))
-                np.savez(weights_fpath, *lasagne.layers.get_all_param_values(layers['l_out']))
+                np.savez(weights_fpath + 'rnn_paremeter.npz', *lasagne.layers.get_all_param_values(layers['l_out']))
                 best_loss = np.mean(train_losses)
                 best_epoch = epoch
             print("  LR:                            "+str(lr))
@@ -91,11 +141,11 @@ def train():
         print('caught ctrl-c, stopping training')
 
     # write the weights to disk so we can try out the model
-    print('saving weights to %s' % (weights_fpath))
+    print('saving weights to %s' % (weights_fpath + 'weights.packle'))
     weights = get_all_param_values(layers['l_out'])  # 'l_out!'
     char_rnn.save_weights(weights, weights_fpath)
     print('done')
 
 
 if __name__ == '__main__':
-    train()
+    main()
