@@ -41,7 +41,7 @@ def generate_samples():
                     len(phrase), train_seq_length)
                 )
                 continue
-            generated_phrase = utils.sample(
+            generated_phrase = utils.utils.sample(
                 sample, phrase,
                 train_seq_length, sample_seq_length,
                 vocab_size, encoder

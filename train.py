@@ -141,9 +141,9 @@ def train(args):
         print('caught ctrl-c, stopping training')
 
     # write the weights to disk so we can try out the model
-    print('saving weights to %s' % (weights_fpath + 'weights.packle'))
+    print('saving weights to %s' % (weights_fpath + '/weights.packle'))
     weights = get_all_param_values(layers['l_out'])  # 'l_out!'
-    char_rnn.save_weights(weights, weights_fpath)
+    char_rnn.save_weights(weights, weights_fpath+ 'weights.packle')
     print('done')
 
 
