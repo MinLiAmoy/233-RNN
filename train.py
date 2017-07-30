@@ -3,6 +3,7 @@ import theano_funcs
 import utils.utils
 import argparse
 import numpy as np
+import lasagne
 from lasagne.layers import get_all_param_values
 from sklearn.preprocessing import LabelEncoder
 from tqdm import tqdm
