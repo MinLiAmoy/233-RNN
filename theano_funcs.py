@@ -62,7 +62,7 @@ def create_sample_func(layers):
     X = T.tensor3('X')
     X_batch = T.tensor3('X_batch')
 
-    y_hat = lasagne.layers.get_output(layers['l_out'], X, deterministic=True)
+    y_hat = lasagne.layers.get_output(layers['l_out'], X, deterministic=False)
 
     sample_func = theano.function(
         inputs=[theano.In(X_batch)],
