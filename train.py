@@ -22,25 +22,25 @@ def main():
     #                   help='directory to store checkpointed models')
     parser.add_argument('--weight_fpath',type=str, default = 'cv/',
                         help='method to quantize:normal, binary, ternary, dual-copy or quantize')
-    parser.add_argument('--num_hidden', type=int, default=512,
+    parser.add_argument('--num_hidden', type=int, default=128,
                        help='size of RNN hidden state')
     parser.add_argument('--num_layers', type=int, default=2,
                        help='number of layers in the RNN')  # ML: still need to modify
     parser.add_argument('--model', type=str, default='lstm',
                        help='rnn, gru, or lstm')
-    parser.add_argument('--batch_size', type=int, default=128,
+    parser.add_argument('--batch_size', type=int, default=50,
                        help='minibatch size')
-    parser.add_argument('--train_seq_length', type=int, default=20,
+    parser.add_argument('--train_seq_length', type=int, default=50,
                        help='RNN sequence length in training phase')
     parser.add_argument('--sample_seq_length', type=int, default=200,
                        help='RNN sequence length in sampling phase')
-    parser.add_argument('--max_epochs', type=int, default=1000,
+    parser.add_argument('--max_epochs', type=int, default=50,
                        help='number of epochs')
     parser.add_argument('--sample_every', type=int, default=1000,
                        help='sample frequency')
     parser.add_argument('--grad_clipping', type=float, default=5.,
                        help='clip gradients at this value') # ML: need to modify
-    parser.add_argument('--lr', type=float, default=0.001,
+    parser.add_argument('--lr', type=float, default=0.002,
                        help='learning rate')
     parser.add_argument('--decay_rate', type=float, default=0.97,
                        help='decay rate for rmsprop') # ML: need to modify
