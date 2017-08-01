@@ -55,13 +55,16 @@ def sample(infer, text, sequence_length, num_samples, vocab_size, encoder):
         probs = infer(X)
         # move all characters one place back and insert the newly sampled char
         X = np.roll(X, -1, axis=1)
-        tokens = probs.argmax(axis=1)
-        #tokens = np.random.choice(np.arange(vocab_size), p=probs.ravel())
+        #tokens = probs.argmax(axis=1)
+        
+        # ML: more random!!!
+        tokens = np.random.choice(np.arange(vocab_size), p=probs.ravel())
+        #tokens = probs[:,tokens]
         X[:, -1] = np.zeros(vocab_size)
         X[:, -1, tokens] = 1.
 
         # keep track of the sampled chars for display
-        samples.append(encoder.inverse_transform(tokens[0]))
+        samples.append(encoder.inverse_transform(tokens))   # ML: if deterministic, tokens-> tokens[0]
 
     return ''.join(samples)
 

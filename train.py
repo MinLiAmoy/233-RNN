@@ -76,7 +76,7 @@ def train(args):
     # sequence length during training, number of chars to draw for sampling
     train_seq_length, sample_seq_length = args.train_seq_length, args.sample_seq_length
     load_model = args.load_model
-    
+
     text, vocab = utils.utils.parse(text_fpath)
 
     # encode each character in the vocabulary as an integer
@@ -108,7 +108,7 @@ def train(args):
     best_loss = 10
     best_epoch = 1
 
-    print('Training')
+    print('Start Training')
     try:
         for epoch in range(1, 1 + max_epochs):
             print('epoch %d' % (epoch))
