@@ -1,18 +1,18 @@
 import char_rnn
 import theano_funcs
-import utils
+import utils.utils
 
 from sklearn.preprocessing import LabelEncoder
 
 
 def generate_samples():
-    weights_fpath = 'weights.pickle'  # weights from which to initialize
-    text_fpath = 'parsed.txt'  # training data text file, to build vocabulary
+    weights_fpath = 'cv/weights.pickle'  # weights from which to initialize
+    text_fpath = 'data/parsed.txt'  # training data text file, to build vocabulary
 
-    grad_clipping = 100.
-    num_hidden = 512
-    train_seq_length, sample_seq_length = 20, 200
-    text, vocab = utils.parse(text_fpath)
+    grad_clipping = 5.
+    num_hidden = 128
+    train_seq_length, sample_seq_length = 10, 200
+    text, vocab = utils.utils.parse(text_fpath)
 
     # need to build the same encoder as during training, could pickle
     encoder = LabelEncoder()
@@ -21,7 +21,7 @@ def generate_samples():
 
     layers = char_rnn.build_model(
         (None, train_seq_length, vocab_size),  # input_shape
-        num_hidden, vocab_size, grad_clipping
+        num_hidden, vocab_size, grad_clipping, 'LSTM', 'ternary'
     )
 
     print('loading model weights from %s' % (weights_fpath))

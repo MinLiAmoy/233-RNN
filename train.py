@@ -27,8 +27,8 @@ def main():
                        help='size of RNN hidden state')
     parser.add_argument('--num_layers', type=int, default=2,
                        help='number of layers in the RNN')  # ML: still need to modify
-    parser.add_argument('--model', type=str, default='lstm',
-                       help='rnn, gru, or lstm')
+    '''parser.add_argument('--model', type=str, default='lstm',
+                       help='rnn, gru, or lstm')'''
     parser.add_argument('--batch_size', type=int, default=50,
                        help='minibatch size')
     parser.add_argument('--train_seq_length', type=int, default=50,
@@ -142,9 +142,9 @@ def train(args):
         print('caught ctrl-c, stopping training')
 
     # write the weights to disk so we can try out the model
-    print('saving weights to %s' % (weights_fpath + '/weights.packle'))
+    print('saving weights to %s' % (weights_fpath + '/weights.pickle'))
     weights = get_all_param_values(layers['l_out'])  # 'l_out!'
-    char_rnn.save_weights(weights, weights_fpath+ 'weights.packle')
+    char_rnn.save_weights(weights, weights_fpath+ 'weights.pickle')
     print('done')
 
 

@@ -1,4 +1,5 @@
 import cPickle as pickle
+import lasagne
 from lasagne.init import Normal
 from lasagne.layers import InputLayer
 
@@ -6,6 +7,8 @@ from lasagne.layers import DenseLayer
 from lasagne.layers import get_all_layers
 from lasagne.layers import get_all_params
 from lasagne.nonlinearities import tanh, softmax
+
+import numpy as np
 
 
 def save_weights(weights, filename):
@@ -21,6 +24,18 @@ def load_weights(layer, filename):
     # assign the parameter values stored on disk to the model
     for src_params, dst_params in zip(src_params_list, dst_params_list):
         dst_params.set_value(src_params)
+        # Load parameters
+    '''with np.load(filename) as f:
+        param_values = [f['arr_%d' % i] for i in range(len(f.files))]
+    lasagne.layers.set_all_param_values(layer, param_values)
+
+    # Binarize the weights
+    params = lasagne.layers.get_all_params(layer)
+    for param in params:
+        # print param.name
+        if param.name == "W":
+            param.set_value(binary_ops.SignNumpy(param.get_value()))'''
+
 
 
 def build_model(input_shape, num_hidden, num_output, grad_clipping, rnn, mode):
