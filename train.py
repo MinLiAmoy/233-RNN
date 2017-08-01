@@ -4,7 +4,7 @@ import utils.utils
 import argparse
 import numpy as np
 import lasagne
-from lasagne.layers import get_all_param_values
+#from lasagne.layers import get_all_param_values
 from sklearn.preprocessing import LabelEncoder
 from tqdm import tqdm
 
@@ -21,7 +21,7 @@ def main():
                         help='method to quantize:normal, binary, ternary, dual-copy or quantize')
     #parser.add_argument('--save_dir', type=str, default='save',
     #                   help='directory to store checkpointed models')
-    parser.add_argument('--weight_fpath',type=str, default = 'cv/',
+    parser.add_argument('--weights_fpath',type=str, default = 'cv/',
                         help='method to quantize:normal, binary, ternary, dual-copy or quantize')
     parser.add_argument('--num_hidden', type=int, default=128,
                        help='size of RNN hidden state')
@@ -39,12 +39,14 @@ def main():
                        help='number of epochs')
     parser.add_argument('--sample_every', type=int, default=1000,
                        help='sample frequency')
-    parser.add_argument('--grad_clipping', type=float, default=5.,
+    parser.add_argument('--grad_clipping', type=float, default=1.,
                        help='clip gradients at this value') # ML: need to modify
     parser.add_argument('--lr', type=float, default=0.002,
                        help='learning rate')
     parser.add_argument('--decay_rate', type=float, default=0.97,
                        help='decay rate for rmsprop') # ML: need to modify
+    parser.add_argument('--load_model', type = bool, default = False,
+                        help='whether load a pre-traind model')
     #parser.add_argument('--gpu_mem', type=float, default=0.666,
     #                   help='%% of gpu memory to be allocated to this process. Default is 66.6%%')
     '''parser.add_argument('--init_from', type=str, default=None,
@@ -63,7 +65,7 @@ def train(args):
     rnn = args.rnn # type of RNN
     mode = args.mode
 
-    weights_fpath = args.weight_fpath  # weights will be stored here
+    weights_fpath = args.weights_fpath  # weights will be stored here
     text_fpath = args.text_fpath  # path to the input file
     max_epochs = args.max_epochs
     lr = args.lr
@@ -73,6 +75,8 @@ def train(args):
     sample_every = args.sample_every  # sample every n batches
     # sequence length during training, number of chars to draw for sampling
     train_seq_length, sample_seq_length = args.train_seq_length, args.sample_seq_length
+    load_model = args.load_model
+    
     text, vocab = utils.utils.parse(text_fpath)
 
     # encode each character in the vocabulary as an integer
@@ -87,17 +91,20 @@ def train(args):
     )
 
     # optionally load a pre-trained model
-    #print('loading model weights from %s' % (weights_fpath))
-    #char_rnn.load_weights(layers['l_out'], weights_fpath)
+    if load_model:
+        print('loading model weights from %s' % (weights_fpath + 'weights.pickle'))
+        char_rnn.load_weights(layers['l_out'], weights_fpath + 'weights.pickle')
 
     # phrases to use during sampling
     phrases = ['I should go to bed now']
 
     print('compiling theano function for training')
     train_char_rnn = theano_funcs.create_train_func(layers, rnn, lr=lr)
+    print('theano function for training built')
+
     print('compiling theano function for sampling')
     sample = theano_funcs.create_sample_func(layers)
-
+    print('theano funciton for sampling built')
     best_loss = 10
     best_epoch = 1
 
@@ -141,9 +148,9 @@ def train(args):
     except KeyboardInterrupt:
         print('caught ctrl-c, stopping training')
 
-    # write the weights to disk so we can try out the model
-    print('saving weights to %s' % (weights_fpath + '/weights.pickle'))
-    weights = get_all_param_values(layers['l_out'])  # 'l_out!'
+    # write the weights to disk so we can try out the model as pickle format
+    print('saving weights to %s' % (weights_fpath + 'weights.pickle'))
+    weights = lasagne.layers.get_all_param_values(layers['l_out'])  # 'l_out!'
     char_rnn.save_weights(weights, weights_fpath+ 'weights.pickle')
     print('done')
 

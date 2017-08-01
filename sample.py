@@ -6,12 +6,15 @@ from sklearn.preprocessing import LabelEncoder
 
 
 def generate_samples():
+    # parameter
     weights_fpath = 'cv/weights.pickle'  # weights from which to initialize
     text_fpath = 'data/parsed.txt'  # training data text file, to build vocabulary
+    rnn = 'LSTM'
+    mode = 'ternary'
 
     grad_clipping = 5.
     num_hidden = 128
-    train_seq_length, sample_seq_length = 10, 200
+    train_seq_length, sample_seq_length = 50, 200
     text, vocab = utils.utils.parse(text_fpath)
 
     # need to build the same encoder as during training, could pickle
@@ -21,11 +24,13 @@ def generate_samples():
 
     layers = char_rnn.build_model(
         (None, train_seq_length, vocab_size),  # input_shape
-        num_hidden, vocab_size, grad_clipping, 'LSTM', 'ternary'
+        num_hidden, vocab_size, grad_clipping, rnn, mode
     )
 
+    # load the mdoel
     print('loading model weights from %s' % (weights_fpath))
     char_rnn.load_weights(layers['l_out'], weights_fpath)
+    print('loading model done!')
 
     print('compiling theano function for sampling')
     sample = theano_funcs.create_sample_func(layers)

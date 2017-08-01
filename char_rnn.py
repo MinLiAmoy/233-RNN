@@ -1,12 +1,12 @@
 import cPickle as pickle
 import lasagne
-from lasagne.init import Normal
+'''from lasagne.init import Normal
 from lasagne.layers import InputLayer
 
 from lasagne.layers import DenseLayer
 from lasagne.layers import get_all_layers
 from lasagne.layers import get_all_params
-from lasagne.nonlinearities import tanh, softmax
+from lasagne.nonlinearities import tanh, softmax'''
 
 import numpy as np
 
@@ -20,7 +20,7 @@ def load_weights(layer, filename):
     with open(filename, 'rb') as f:
         src_params_list = pickle.load(f)
 
-    dst_params_list = get_all_params(layer)
+    dst_params_list = lasagne.layers.get_all_params(layer)
     # assign the parameter values stored on disk to the model
     for src_params, dst_params in zip(src_params_list, dst_params_list):
         dst_params.set_value(src_params)
@@ -39,6 +39,12 @@ def load_weights(layer, filename):
 
 
 def build_model(input_shape, num_hidden, num_output, grad_clipping, rnn, mode):
+    
+    print('building graph!')
+    print('RNN mode:' + rnn)
+    print('quantization mode:' + mode)
+    print('############################')
+    
     if rnn == "LSTM":
         import model.LSTM
         rnn = model.LSTM.LSTMLayer
@@ -48,28 +54,40 @@ def build_model(input_shape, num_hidden, num_output, grad_clipping, rnn, mode):
     elif rnn == "Recurrent":
         import model.Recurrent
         rnn = model.Recurrent.RecurrentLayer
-    print('building graph!')
-    l_in = InputLayer(input_shape, name='l_in')
+
+    print('building Input Layer')
+    l_in = lasagne.layers.InputLayer(input_shape, name='l_in')
+    print('---->')
+
+    print('building Fisrt Layer')
     l_rnn1 = rnn(
         l_in, name='l_rnn1',
         num_units=num_hidden, grad_clipping=grad_clipping, mode = mode
     )
+    print('---->')
+
+    print('building Second Layer')
     l_rnn2 = rnn(
         l_rnn1, name='l_rnn2',
         num_units=num_hidden, grad_clipping=grad_clipping, mode = mode,
         only_return_final=True,
     )
+    print('---->')
 
-    l_out = DenseLayer(
-        l_rnn2, name='l_out', W=Normal(),
-        num_units=num_output, nonlinearity=softmax
+    print('building Output Layer')
+    l_out = lasagne.layers.DenseLayer(
+        l_rnn2, name='l_out', W=lasagne.init.Normal(),
+        num_units=num_output, nonlinearity=lasagne.nonlinearities.softmax
     )
 
-    layers = get_all_layers(l_out)
+
+    layers = lasagne.layers.get_all_layers(l_out)
+    print('building graph done')
+    print('############################')
     return {layer.name: layer for layer in layers}
 
 
 if __name__ == '__main__':
     print('testing build_model')
-    build_model((None, 32, 64), 128, 10, 10.)
+    build_model((None, 32, 64), 128, 10, 10., 'LSRM', 'normal')
     print('done')

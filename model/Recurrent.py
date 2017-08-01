@@ -286,7 +286,7 @@ def compute_rnn_grads(loss,network):
         params = layer.get_params(binary=True)
         if params:
             for param in params:
-                print(param.name)
+                #print(param.name)
                 if param.name == layer.name + '.'+ 'input_to_hidden.W':   # ML: should be Wb?
                     grads.append(theano.grad(loss, wrt=layer.Wb_in_to_hid))
                 elif param.name == layer.name + '.'+ 'hidden_to_hidden.W':
