@@ -103,7 +103,7 @@ def train(args):
 
     # phrases to use during sampling
     #phrases = ['I should go to bed now']
-    phrases = [' ']
+    phrases = ['First Citizen:']
 
     print('compiling theano function for training')
     train_char_rnn = theano_funcs.create_train_func(layers, rnn)
