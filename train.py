@@ -96,7 +96,8 @@ def train(args):
         char_rnn.load_weights(layers['l_out'], weights_fpath + 'weights.pickle')
 
     # phrases to use during sampling
-    phrases = ['I should go to bed now']
+    #phrases = ['I should go to bed now']
+    phrases = [' ']
 
     print('compiling theano function for training')
     train_char_rnn = theano_funcs.create_train_func(layers, rnn, lr=lr)

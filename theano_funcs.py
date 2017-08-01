@@ -9,7 +9,7 @@ from theano.tensor.nnet import categorical_crossentropy
 
 from collections import OrderedDict
 
-def create_train_func(layers, rnn, lr=0.01):
+def create_train_func(layers, rnn, lr=0.002):
 
     if rnn == "LSTM":
         import model.LSTM
