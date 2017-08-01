@@ -9,7 +9,7 @@ from theano.tensor.nnet import categorical_crossentropy
 
 from collections import OrderedDict
 
-def create_train_func(layers, rnn, lr=0.002):
+def create_train_func(layers, rnn):
 
     if rnn == "LSTM":
         import model.LSTM
@@ -33,6 +33,8 @@ def create_train_func(layers, rnn, lr=0.002):
 
     train_loss = T.mean(categorical_crossentropy(y_hat, y), axis=0)
 
+    # define lr
+    lr = T.scalar(name = 'lr')
     # ML: if quantized, W updates. Canot work
     W = lasagne.layers.get_all_params(layers['l_out'], binary = True)
     W_grads = rnn.compute_rnn_grads(train_loss, layers['l_out'])
@@ -46,7 +48,7 @@ def create_train_func(layers, rnn, lr=0.002):
     updates = lasagne.updates.adagrad(train_loss, params, lr)'''
 
     train_func = theano.function(
-        inputs=[theano.In(X_batch), theano.In(y_batch)],
+        inputs=[theano.In(X_batch), theano.In(y_batch), lr],
         outputs=train_loss,
         updates=updates,
         givens={

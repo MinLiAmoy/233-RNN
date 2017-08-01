@@ -43,6 +43,10 @@ def main():
                        help='clip gradients at this value') # ML: need to modify
     parser.add_argument('--lr', type=float, default=0.002,
                        help='learning rate')
+    parser.add_argument('--lr_decay', type=float, default=0.97,
+                       help='the decay rate of learning rate')
+    parser.add_argument('--lr_decay_after', type=int, default =10,
+                       help='in number of epochs, wehn to start decaying the learning rate')
     parser.add_argument('--decay_rate', type=float, default=0.97,
                        help='decay rate for rmsprop') # ML: need to modify
     parser.add_argument('--load_model', type = bool, default = False,
@@ -69,6 +73,8 @@ def train(args):
     text_fpath = args.text_fpath  # path to the input file
     max_epochs = args.max_epochs
     lr = args.lr
+    lr_decay = args.lr_decay
+    lr_decay_after = args.lr_decay_after
     grad_clipping = args.grad_clipping  # ML: need to be modified
     num_hidden = args.num_hidden
     batch_size = args.batch_size
@@ -100,7 +106,7 @@ def train(args):
     phrases = [' ']
 
     print('compiling theano function for training')
-    train_char_rnn = theano_funcs.create_train_func(layers, rnn, lr=lr)
+    train_char_rnn = theano_funcs.create_train_func(layers, rnn)
     print('theano function for training built')
 
     print('compiling theano function for sampling')
@@ -113,7 +119,8 @@ def train(args):
     try:
         for epoch in range(1, 1 + max_epochs):
             print('epoch %d' % (epoch))
-
+            if epoch >= lr_decay_after:
+                lr = lr * lr_decay
             # sample from the model and update the weights
             train_losses = []
             seq_iter = utils.utils.sequences(
@@ -121,7 +128,7 @@ def train(args):
             )
             for i, (X, y) in tqdm(enumerate(seq_iter), leave=False):
                 if X is not None and y is not None:
-                    loss = train_char_rnn(X, y)
+                    loss = train_char_rnn(X, y, lr)
                     train_losses.append(loss)
                     print(' loss = %.6f' % (loss))
 
