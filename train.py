@@ -16,7 +16,7 @@ def main():
     #                  help='directory containing tensorboard logs')
     parser.add_argument('--rnn',type=str, default='LSTM',
                         help='tpye of rnn:lstm, gru or recurrent')
-    parser.add_argument('--mode',type=str, default = 'normal',
+    parser.add_argument('--mode',type=str, default = 'ternary',
                         help='method to quantize:normal, binary, ternary, dual-copy or quantize')
     #parser.add_argument('--save_dir', type=str, default='save',
     #                   help='directory to store checkpointed models')
@@ -128,7 +128,7 @@ def train(args):
                     print('%s%s' % (phrase, generated_phrase))
             if np.mean(train_losses) < best_loss:
                 print ('saving weight to %s in npz format' % (weights_fpath))
-                np.savez(weights_fpath + 'rnn_paremeter.npz', *lasagne.layers.get_all_param_values(layers['l_out']))
+                np.savez(weights_fpath + 'rnn_paremeter.npz', *get_all_param_values(layers['l_out']))
                 best_loss = np.mean(train_losses)
                 best_epoch = epoch
             print("  LR:                            "+str(lr))
@@ -141,9 +141,9 @@ def train(args):
         print('caught ctrl-c, stopping training')
 
     # write the weights to disk so we can try out the model
-    print('saving weights to %s' % (weights_fpath + '/weights.packle'))
+    print('saving weights to %s' % (weights_fpath + '/weights.pickle'))
     weights = get_all_param_values(layers['l_out'])  # 'l_out!'
-    char_rnn.save_weights(weights, weights_fpath+ 'weights.packle')
+    char_rnn.save_weights(weights, weights_fpath+ 'weights.pickle')
     print('done')
 
 
