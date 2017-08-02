@@ -115,7 +115,7 @@ class LSTMLayer(lasagne.layers.LSTMLayer):
     def get_output_for(self, inputs, deterministic=False, **kwargs):
         if not self.stochastic and not deterministic:
             deterministic=True
-        print "deterministic mode: ",deterministic
+        #print "deterministic mode: ",deterministic
         def apply_regularization(weights,hid=False):
             current_W0 = self.W0
             if hid:
