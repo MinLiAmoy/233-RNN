@@ -12,9 +12,9 @@ def generate_samples():
     rnn = 'GRU'
     mode = 'ternary'
 
-    grad_clipping = 5.
+    grad_clipping = 1.
     num_hidden = 128
-    train_seq_length, sample_seq_length = 10, 200
+    train_seq_length, sample_seq_length = 10, 500
     text, vocab = utils.utils.parse(text_fpath)
 
     # need to build the same encoder as during training, could pickle

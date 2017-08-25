@@ -34,7 +34,7 @@ class GRULayer(lasagne.layers.GRULayer):
     """
     def __init__(self, incoming, num_units,
         stochastic = True, H='glorot',W_LR_scale="Glorot",mode='normal',integer_bits=0,fractional_bits=1,
-                 random_seed=666,batch_norm=True,round_hid=True,bn_gamma=lasagne.init.Constant(0.1),mean_substraction_rounding=False,round_bias=True,round_input_weights=True,round_activations=False, **kwargs):
+                 random_seed=666,batch_norm=False,round_hid=True,bn_gamma=lasagne.init.Constant(0.1),mean_substraction_rounding=False,round_bias=True,round_input_weights=True,round_activations=False, **kwargs):
 
         self.H=H
         self.mode=mode
