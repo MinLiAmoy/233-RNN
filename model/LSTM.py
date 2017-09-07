@@ -16,6 +16,9 @@ class Gate(lasagne.layers.Gate):
     """
     This class extends the Lasagne Gate to support rounding of weights
     """
+
+    # ****** ML: we quantized the activation to 1,0 or -1,1 in previous experiments when we trained binarized models, which we did not realize....
+    # class Gate can be commented when we want to train a binarized model without quantization of activation and using hard tanh and hard sigmoid
     def __init__(self,mode='normal',H=1.0,nonlinearity=lasagne.nonlinearities.sigmoid,bias_init=lasagne.init.Constant(-1.), **kwargs):
         if mode=='binary':
             if nonlinearity==lasagne.nonlinearities.tanh:
@@ -32,7 +35,7 @@ class LSTMLayer(lasagne.layers.LSTMLayer):
     This class extends the lasagne LSTMLayer to support rounding of weights
     """
     def __init__(self, incoming, num_units, 
-        stochastic = True, H='glorot',W_LR_scale="Glorot",mode='nomal',integer_bits=0,fractional_bits=1,
+        stochastic = True, H='glorot',W_LR_scale="Glorot",mode='normal',integer_bits=0,fractional_bits=1,
                 random_seed=666,batch_norm=True,round_hid=True,bn_gamma=lasagne.init.Constant(0.1),mean_substraction_rounding=False,round_bias=True,round_input_weights=True,round_activations=False, **kwargs):
 
         self.H=H

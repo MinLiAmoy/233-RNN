@@ -21,14 +21,12 @@ def main():
                         help='method to quantize:normal, binary, ternary, dual-copy or quantize')
     #parser.add_argument('--save_dir', type=str, default='save',
     #                   help='directory to store checkpointed models')
-    parser.add_argument('--weights_fpath',type=str, default = 'cv/',
-                        help='method to quantize:normal, binary, ternary, dual-copy or quantize')
+    parser.add_argument('--weights_fpath',type=str, default = 'cv/',      # the format of weight is .pickle , can be changed to .npz (modify the function load_weight() in char_rnn.py)
+                        help='path of weitght')
     parser.add_argument('--num_hidden', type=int, default=128,
                        help='size of RNN hidden state')
     parser.add_argument('--num_layers', type=int, default=2,
-                       help='number of layers in the RNN')  # ML: still need to modify
-    '''parser.add_argument('--model', type=str, default='lstm',
-                       help='rnn, gru, or lstm')'''
+                       help='number of layers in the RNN')  
     parser.add_argument('--batch_size', type=int, default=50,
                        help='minibatch size')
     parser.add_argument('--train_seq_length', type=int, default=50,
@@ -40,34 +38,24 @@ def main():
     parser.add_argument('--sample_every', type=int, default=1000,
                        help='sample frequency')
     parser.add_argument('--grad_clipping', type=float, default=1.,
-                       help='clip gradients at this value') # ML: need to modify
+                       help='clip gradients at this value') 
     parser.add_argument('--lr', type=float, default=0.002,
                        help='learning rate')
     parser.add_argument('--lr_decay', type=float, default=0.97,
                        help='the decay rate of learning rate')
     parser.add_argument('--lr_decay_after', type=int, default =10,
-                       help='in number of epochs, wehn to start decaying the learning rate')
+                       help='number of epochs to start decaying the learning rate')
     parser.add_argument('--decay_rate', type=float, default=0.97,
-                       help='decay rate for rmsprop') # ML: need to modify
+                       help='decay rate for rmsprop') 
     parser.add_argument('--load_model', type = bool, default = False,
                         help='whether load a pre-traind model')
-    #parser.add_argument('--gpu_mem', type=float, default=0.666,
-    #                   help='%% of gpu memory to be allocated to this process. Default is 66.6%%')
-    '''parser.add_argument('--init_from', type=str, default=None,
-                       help="""continue training from saved model at this path. Path must contain files saved by previous training process:
-                            'config.pkl'        : configuration;
-                            'words_vocab.pkl'   : vocabulary definitions;
-                            'checkpoint'        : paths to model file(s) (created by tf).
-                                                  Note: this file contains absolute paths, be careful when moving files around;
-                            'model.ckpt-*'      : file(s) with model definition (created by tf)
-                        """)'''
     args = parser.parse_args()
     train(args)
 
 
 def train(args):
     rnn = args.rnn # type of RNN
-    mode = args.mode
+    mode = args.mode # quantization methods
 
     weights_fpath = args.weights_fpath  # weights will be stored here
     text_fpath = args.text_fpath  # path to the input file
@@ -75,7 +63,7 @@ def train(args):
     lr = args.lr
     lr_decay = args.lr_decay
     lr_decay_after = args.lr_decay_after
-    grad_clipping = args.grad_clipping  # ML: need to be modified
+    grad_clipping = args.grad_clipping  
     num_hidden = args.num_hidden
     batch_size = args.batch_size
     sample_every = args.sample_every  # sample every n batches

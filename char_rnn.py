@@ -1,13 +1,5 @@
 import cPickle as pickle
 import lasagne
-'''from lasagne.init import Normal
-from lasagne.layers import InputLayer
-
-from lasagne.layers import DenseLayer
-from lasagne.layers import get_all_layers
-from lasagne.layers import get_all_params
-from lasagne.nonlinearities import tanh, softmax'''
-
 import numpy as np
 
 
@@ -23,8 +15,11 @@ def load_weights(layer, filename):
     dst_params_list = lasagne.layers.get_all_params(layer)
     # assign the parameter values stored on disk to the model
     for src_params, dst_params in zip(src_params_list, dst_params_list):
-        dst_params.set_value(src_params)
-        # Load parameters
+        dst_params.set_value(src_params) # * need binarization?
+
+
+    # Load parameters
+    # format: npz
     '''with np.load(filename) as f:
         param_values = [f['arr_%d' % i] for i in range(len(f.files))]
     lasagne.layers.set_all_param_values(layer, param_values)
