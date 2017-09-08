@@ -7,7 +7,7 @@ from theano import scalar as scal
 from theano.tensor.elemwise import Elemwise
 from theano.printing import pprint
 import theano.printing as printing
-
+# ***** ML: should be verified its function
 class GradPreserveRoundOp(UnaryScalarOp):
     """
     Modified version of theano's rounding op
