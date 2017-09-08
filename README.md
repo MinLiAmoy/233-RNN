@@ -4,11 +4,17 @@ regularization.py and round_op.py are forked from ottj/QuantizedRNN. generate_sa
 
 Training 
 Start training model using the command:
+
 $ python train.py
+
 the default parameters include:
+
 rnn type - LSTM
+
 quantization mode - normal
+
 number of hidden state - 128
+
 batch size - 50
 
 you can pass arguments using argparse.
