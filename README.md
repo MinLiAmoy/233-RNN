@@ -18,3 +18,14 @@ number of hidden state - 128
 batch size - 50
 
 you can pass arguments using argparse.
+
+Requirements:
+Python 2.7, Numpy, Scipy
+Theano
+A fast Nvidia GPU (or a large amount of patience)
+Setting your Theano flags to use the GPU
+Pylearn2
+tqdm
+sklearn
+cPickle 
+
