@@ -77,6 +77,31 @@ def create_sample_func(layers):
 
     return sample_func
 
+def create_vali_func(layers):
+    # dims: batch, sequence, vocabulary
+    X = T.tensor3('X')
+    X_batch = T.tensor3('X_batch')
+
+    # dims: target
+    y = T.ivector('y')
+    y_batch = T.ivector('y_batch')
+
+    y_hat = lasagne.layers.get_output(layers['l_out'], X, deterministic=True)
+
+    vali_loss = T.mean(categorical_crossentropy(y_hat, y), axis=0)
+
+    vali_func = theano.function(
+        inputs=[theano.In(X_batch), theano.In(y_batch)],
+        outputs=vali_loss,
+        updates=None,
+        givens={
+            X: X_batch,
+            y: y_batch,
+        },
+    )
+
+    return vali_func
+
 
 def test_create_train_func():
     import numpy as np

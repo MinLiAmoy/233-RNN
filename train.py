@@ -11,7 +11,7 @@ from tqdm import tqdm
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--text_fpath', type=str, default='data/parsed.txt',
+    parser.add_argument('--text_fpath', type=str, default='data/',
                        help='data directory containing input.txt')
     #parser.add_argument('--log_dir', type=str, default='logs',
     #                  help='directory containing tensorboard logs')
@@ -71,9 +71,19 @@ def train(args):
     train_seq_length, sample_seq_length = args.train_seq_length, args.sample_seq_length
     load_model = args.load_model
 
-    text, vocab = utils.utils.parse(text_fpath)
+    text, vocab = utils.utils.parse(text_fpath+'train.txt')
+    text_vali, vocab_vali = utils.utils.parse(text_fpath + 'vali.txt')
+    text_test, vocab_test = utils.utils.parse(text_fpath + 'test.txt')
+
+    if vocab_train == vocab_vali && vocab_train == vocab_test:
+        print('Vocabulory established')
+    # ***ML: need to be modified
+    print vocab
+    print vocab_vali
+    print vocab_test
 
     # encode each character in the vocabulary as an integer
+
     encoder = LabelEncoder()
     encoder.fit(list(vocab))
     vocab_size = len(vocab)
@@ -100,6 +110,14 @@ def train(args):
     print('compiling theano function for sampling')
     sample = theano_funcs.create_sample_func(layers)
     print('theano funciton for sampling built')
+
+    print('compiling theano function for validation')
+    vali_char_rnn = theano_funcs.create_vali_func(layers)
+    print('theano function for validation built')
+
+    print('compiling theano function for testing')
+    test_char_rnn = theano_funcs.create_vali_func(layers) # ML:testing flow is as same as validation flow
+
     best_loss = 10
     best_epoch = 1
 
@@ -111,6 +129,7 @@ def train(args):
                 lr = lr * lr_decay
             # sample from the model and update the weights
             train_losses = []
+            vali_losses = []
             seq_iter = utils.utils.sequences(
                 text, batch_size, train_seq_length, vocab_size, encoder
             )
@@ -130,6 +149,7 @@ def train(args):
                         vocab_size, encoder
                     )
                     print('%s%s' % (phrase, generated_phrase))
+
             if np.mean(train_losses) < best_loss:
                 print ('saving weight to %s in npz format' % (weights_fpath))
                 np.savez(weights_fpath + 'rnn_paremeter.npz', *lasagne.layers.get_all_param_values(layers['l_out']))
@@ -139,6 +159,35 @@ def train(args):
             print("  training loss:                 "+str(np.mean(train_losses)))
             print("  best epoch:                    "+str(best_epoch))
             print("  best training loss:            "+str(best_loss))
+
+            # ML: start validation flow
+            seq_iter_vali = utils.utils.sequence(
+                text_vali, batch_size, train_seq_length, vocab_size, encoder 
+            )
+            print("Start validation flow:")
+            for i, (X_vali, y_vali) in tqdm(enumerate(seq_iter_vali), leave=False):
+                if X_vali is not None and y_vali is not None:
+                    loss = vali_char_rnn(X_vali, y_vali)
+                    vali_losses.append(loss)
+                    print(' loss = %.6f' % (loss))
+            print("Validation flow finished")
+            print('Validation loss = %.6f'% (np.mean(vali_losses)))
+
+        # ML: start testing flow
+        test_losses = []
+        seq_iter_test = utils.utils.sequence(
+                text_test, batch_size, train_seq_length, vocab_size, encoder 
+            )
+            print("Start testing flow:")
+            for i, (X_test, y_test) in tqdm(enumerate(seq_iter_test), leave=False):
+                if X_test is not None and y_test is not None:
+                    loss = test_char_rnn(X_test, y_test)
+                    vali_losses.append(loss)
+                    print(' loss = %.6f' % (loss))
+            print("Testing flow finished")
+            print('Test set average loss = %.6f'% (np.mean(test_losses)))
+
+
 
 
     except KeyboardInterrupt:
