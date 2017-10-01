@@ -71,22 +71,22 @@ def train(args):
     train_seq_length, sample_seq_length = args.train_seq_length, args.sample_seq_length
     load_model = args.load_model
 
-    text, vocab = utils.utils.parse(text_fpath+'train.txt')
+    text, vocab_train = utils.utils.parse(text_fpath+'train.txt')
     text_vali, vocab_vali = utils.utils.parse(text_fpath + 'vali.txt')
     text_test, vocab_test = utils.utils.parse(text_fpath + 'test.txt')
 
-    if vocab_train == vocab_vali && vocab_train == vocab_test:
-        print('Vocabulory established')
+    #if ((vocab_train == vocab_vali) && (vocab_train == vocab_test)):
+    #    print('Vocabulory established')
     # ***ML: need to be modified
-    print vocab
+    print vocab_train
     print vocab_vali
     print vocab_test
 
     # encode each character in the vocabulary as an integer
 
     encoder = LabelEncoder()
-    encoder.fit(list(vocab))
-    vocab_size = len(vocab)
+    encoder.fit(list(vocab_train))
+    vocab_size = len(vocab_train)
 
     # ML: build model!
     layers = char_rnn.build_model(
@@ -161,7 +161,7 @@ def train(args):
             print("  best training loss:            "+str(best_loss))
 
             # ML: start validation flow
-            seq_iter_vali = utils.utils.sequence(
+            seq_iter_vali = utils.utils.sequences(
                 text_vali, batch_size, train_seq_length, vocab_size, encoder 
             )
             print("Start validation flow:")
@@ -175,17 +175,17 @@ def train(args):
 
         # ML: start testing flow
         test_losses = []
-        seq_iter_test = utils.utils.sequence(
+        seq_iter_test = utils.utils.sequences(
                 text_test, batch_size, train_seq_length, vocab_size, encoder 
-            )
-            print("Start testing flow:")
-            for i, (X_test, y_test) in tqdm(enumerate(seq_iter_test), leave=False):
-                if X_test is not None and y_test is not None:
-                    loss = test_char_rnn(X_test, y_test)
-                    vali_losses.append(loss)
-                    print(' loss = %.6f' % (loss))
-            print("Testing flow finished")
-            print('Test set average loss = %.6f'% (np.mean(test_losses)))
+        )
+        print("Start testing flow:")
+        for i, (X_test, y_test) in tqdm(enumerate(seq_iter_test), leave=False):
+            if X_test is not None and y_test is not None:
+                loss = test_char_rnn(X_test, y_test)
+                vali_losses.append(loss)
+                print(' loss = %.6f' % (loss))
+        print("Testing flow finished")
+        print('Test set average loss = %.6f'% (np.mean(test_losses)))
 
 
 
